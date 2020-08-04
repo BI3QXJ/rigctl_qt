@@ -104,6 +104,9 @@
       <number>1</number>
      </property>
      <widget class="QWidget" name="tab_basic">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <attribute name="title">
        <string>常用</string>
       </attribute>
@@ -1041,7 +1044,7 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QPushButton" name="btn_vfo_mem_up">
+          <widget class="QPushButton" name="btn_vfo_channel_up">
            <property name="minimumSize">
             <size>
              <width>50</width>
@@ -1291,7 +1294,7 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QPushButton" name="btn_vfo_mem_down">
+          <widget class="QPushButton" name="btn_vfo_channel_down">
            <property name="minimumSize">
             <size>
              <width>50</width>
@@ -3045,7 +3048,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox_13">
+          <widget class="QGroupBox" name="grp_key_sim">
            <property name="title">
             <string>按键模拟</string>
            </property>

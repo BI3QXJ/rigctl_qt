@@ -1,7 +1,8 @@
-from PySide2.QtWidgets import QApplication, QWidget
+from PySide2.QtWidgets import QApplication, QWidget, QMessageBox
 from ui.Ui_rpi_hvga import Ui_Form
 from PySide2.QtCore import Qt
 import serial.tools.list_ports
+from rigctl import rig_factory
 
 
 class Rigctl(QWidget):
@@ -15,13 +16,13 @@ class Rigctl(QWidget):
         self.ui.table_mem.setColumnWidth(0, 20)
         self.ui.table_mem.setColumnWidth(1, 20)
         self.ui.table_mem.setColumnWidth(2, 30)
-        self.ui.btn_serial_refresh.clicked.connect(self.serial_port_refresh)
+        self.ui.table_mem.insertRow(0)
         # a = QPicture()
         # a.load('pic.png')
         # self.ui.label.setPixmap(QPixmap('s_3d3f79de58d54074bb60be81a7baaa41.jpg'))
         self.move(0, 0)
 
-        # 关联函数
+        # 设置各功能上下限
         self.ui.dial_power.setMinimum(5)
         self.ui.dial_power.setMaximum(100)
         self.ui.dial_power.valueChanged.connect(self.change_pow)
@@ -71,8 +72,8 @@ class Rigctl(QWidget):
         self.ui.btn_vfo_ab.clicked.connect(self.vfo_ab)
         self.ui.btn_vfo_ba.clicked.connect(self.vfo_ba)
         self.ui.btn_vfo_swap.clicked.connect(self.vfo_swap)
-        self.ui.btn_vfo_mem_up.clicked.connect(self.mem_up)
-        self.ui.btn_vfo_mem_down.clicked.connect(self.mem_down)
+        self.ui.btn_vfo_channel_up.clicked.connect(self.channel_up)
+        self.ui.btn_vfo_channel_down.clicked.connect(self.channel_down)
         self.ui.btn_vfo_qmb_save.clicked.connect(self.qmb_save)
         self.ui.btn_vfo_qmb_recall.clicked.connect(self.qmb_recall)
 
@@ -88,118 +89,145 @@ class Rigctl(QWidget):
         self.ui.btn_vfo_num8.clicked.connect(self.vfo_input_8)
         self.ui.btn_vfo_num9.clicked.connect(self.vfo_input_9)
 
+        self.ui.btn_vfo_set_a.clicked.connect(self.vfo_set_freq_a)
+        self.ui.btn_vfo_set_b.clicked.connect(self.vfo_set_freq_b)
+
+        # TAB - 系统设置 (tab_sys) ----------------------------
+        self.ui.btn_serial_refresh.clicked.connect(self.serial_port_refresh)
+        self.ui.btn_serial_connect.clicked.connect(self.serial_port_connect)
+        self.ui.btn_rig_poweron.clicked.connect(self.rig_power_on)
+        self.ui.btn_rig_poweroff.clicked.connect(self.rig_power_off)
+        # 类变量部分
+        self.connected = False
+        self.rig = None
+        self.ui_set_enable()
+
+    def ui_set_enable(self):
+        """根据连接状态, 锁定/解锁所有控件"""
+        self.ui.tab_basic.setEnabled(self.connected)
+        self.ui.tab_vfo.setEnabled(self.connected)
+        self.ui.tab_rx.setEnabled(self.connected)
+        self.ui.tab_tx.setEnabled(self.connected)
+        self.ui.tab_dsp.setEnabled(self.connected)
+        self.ui.tab_cd.setEnabled(self.connected)
+        self.ui.grp_key_sim.setEnabled(self.connected)
+
+    def ui_conf_enable(self):
+        """根据设备功能特性, 设置控件可用性"""
+        pass
+
     # ----------------------- 基本功能 ------------------------
     def mode_lsb(self):
-        pass
+        self.rig.mode('LSB')
 
     def mode_usb(self):
-        pass
+        self.rig.mode('USB')
 
     def mode_am(self):
-        pass
+        self.rig.mode('AM')
 
     def mode_fm(self):
-        pass
+        self.rig.mode('FM')
 
     def mode_cwl(self):
-        pass
+        self.rig.mode('CW-L')
 
     def mode_cwu(self):
-        pass
+        self.rig.mode('CW-U')
 
     def mode_rttyl(self):
-        pass
+        self.rig.mode('RTTY-LSB')
 
     def mode_rttyu(self):
-        pass
+        self.rig.mode('RTTY-USB')
 
     def mode_datal(self):
-        pass
+        self.rig.mode('DATA-LSB')
 
     def mode_datau(self):
-        pass
+        self.rig.mode('DATA-USB')
 
     def mode_datafm(self):
-        pass
+        self.rig.mode('DATA-FM')
 
     def mode_c4fm(self):
-        pass
+        self.rig.mode('C4FM')
 
     def band_1_8(self):
-        pass
+        self.rig.band('1.8M')
 
     def band_3_5(self):
-        pass
+        self.rig.band('3.5M')
 
     def band_5_0(self):
-        pass
+        self.rig.band('5.3M')
 
     def band_7_0(self):
-        pass
+        self.rig.band('7M')
 
     def band_10(self):
-        pass
+        self.rig.band('10M')
 
     def band_14(self):
-        pass
+        self.rig.band('14M')
 
     def band_18(self):
-        pass
+        self.rig.band('18M')
 
     def band_21(self):
-        pass
+        self.rig.band('21M')
 
     def band_24(self):
-        pass
+        self.rig.band('24.5M')
 
     def band_28(self):
-        pass
+        self.rig.band('28M')
 
     def band_50(self):
-        pass
+        self.rig.band('50M')
 
     def band_gen(self):
-        pass
+        self.rig.band('GEN')
 
     def band_air(self):
-        pass
+        self.rig.band('AIR')
 
     def band_144(self):
-        pass
+        self.rig.band('144M')
 
     def band_430(self):
-        pass
+        self.rig.band('430M')
 
     def band_mw(self):
-        pass
+        self.rig.band('MW')
 
     # ---------------------- VFO 功能 -----------------------
     def vfo_am(self):
-        pass
+        self.rig.vfo_ab()
 
     def vfo_ma(self):
-        pass
+        self.rig.vfo_ma()
 
     def vfo_ab(self):
-        pass
+        self.rig.vfo_ab()
 
     def vfo_ba(self):
-        pass
+        self.rig.vfo_ba()
 
     def vfo_swap(self):
-        pass
+        self.rig.vfo_swap()
 
-    def mem_up(self):
-        pass
+    def channel_up(self):
+        self.rig.channel_up()
 
-    def mem_down(self):
-        pass
+    def channel_down(self):
+        self.rig.channel_down()
 
     def qmb_save(self):
-        pass
+        self.rig.qmb_save()
 
     def qmb_recall(self):
-        pass
+        self.rig.qmb_recall()
 
     def vfo_input_clear(self):
         self.ui.text_vfo.clear()
@@ -234,9 +262,16 @@ class Rigctl(QWidget):
     def vfo_input_9(self):
         self.ui.text_vfo.setText(self.ui.text_vfo.text() + '9')
 
+    def vfo_set_freq_a(self):
+        self.rig.vfo_freq('A', self.ui.text_vfo.text())
+
+    def vfo_set_freq_b(self):
+        self.rig.vfo_freq('B', self.ui.text_vfo.text())
+
     def change_pow(self):
         rf_power = self.ui.dial_power.value()
         self.ui.spin_power.setValue(rf_power)
+        self.rig.rf_power(rf_power)
 
     def change_vox_gain(self):
         vox_gain = self.ui.dial_vox.value()
@@ -245,6 +280,24 @@ class Rigctl(QWidget):
     def change_mic_gain(self):
         mic_gain = self.ui.dial_mic.value()
         self.ui.spin_mic.setValue(mic_gain)
+
+    def rig_power_on(self):
+        self.rig.power_on()
+
+    def rig_power_off(self):
+        self.rig.power_off()
+
+    def serial_port_connect(self):
+        """打开串口, 创建设备实例"""
+        port = self.ui.list_serial_port.currentText()
+        if port == '':
+            QMessageBox.critical(self, "错误", "尚未选择串口", QMessageBox.Yes)
+        else:
+            rig = rig_factory('yaesu.yaesu-ft-891')
+            rig.connect(port=port, baudrate=38400)
+            self.rig = rig
+            self.connected = True
+            self.ui_set_enable()
 
     def serial_port_refresh(self):
         """刷新串口列表"""

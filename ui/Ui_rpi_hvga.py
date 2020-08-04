@@ -56,6 +56,7 @@ class Ui_Form(object):
         self.tab_main.setFont(font)
         self.tab_basic = QWidget()
         self.tab_basic.setObjectName(u"tab_basic")
+        self.tab_basic.setEnabled(True)
         self.horizontalLayout_2 = QHBoxLayout(self.tab_basic)
         self.horizontalLayout_2.setSpacing(2)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
@@ -383,12 +384,12 @@ class Ui_Form(object):
 
         self.layout_vfo.addWidget(self.btn_vfo_am, 0, 0, 1, 1)
 
-        self.btn_vfo_mem_up = QPushButton(self.tab_vfo)
-        self.btn_vfo_mem_up.setObjectName(u"btn_vfo_mem_up")
-        self.btn_vfo_mem_up.setMinimumSize(QSize(50, 32))
-        self.btn_vfo_mem_up.setMaximumSize(QSize(16777215, 32))
+        self.btn_vfo_channel_up = QPushButton(self.tab_vfo)
+        self.btn_vfo_channel_up.setObjectName(u"btn_vfo_channel_up")
+        self.btn_vfo_channel_up.setMinimumSize(QSize(50, 32))
+        self.btn_vfo_channel_up.setMaximumSize(QSize(16777215, 32))
 
-        self.layout_vfo.addWidget(self.btn_vfo_mem_up, 1, 1, 1, 1)
+        self.layout_vfo.addWidget(self.btn_vfo_channel_up, 1, 1, 1, 1)
 
         self.btn_vfo_num4 = QPushButton(self.tab_vfo)
         self.btn_vfo_num4.setObjectName(u"btn_vfo_num4")
@@ -476,12 +477,12 @@ class Ui_Form(object):
 
         self.layout_vfo.addWidget(self.btn_vfo_ma, 1, 0, 1, 1)
 
-        self.btn_vfo_mem_down = QPushButton(self.tab_vfo)
-        self.btn_vfo_mem_down.setObjectName(u"btn_vfo_mem_down")
-        self.btn_vfo_mem_down.setMinimumSize(QSize(50, 32))
-        self.btn_vfo_mem_down.setMaximumSize(QSize(16777215, 32))
+        self.btn_vfo_channel_down = QPushButton(self.tab_vfo)
+        self.btn_vfo_channel_down.setObjectName(u"btn_vfo_channel_down")
+        self.btn_vfo_channel_down.setMinimumSize(QSize(50, 32))
+        self.btn_vfo_channel_down.setMaximumSize(QSize(16777215, 32))
 
-        self.layout_vfo.addWidget(self.btn_vfo_mem_down, 2, 1, 1, 1)
+        self.layout_vfo.addWidget(self.btn_vfo_channel_down, 2, 1, 1, 1)
 
         self.btn_vfo_num5 = QPushButton(self.tab_vfo)
         self.btn_vfo_num5.setObjectName(u"btn_vfo_num5")
@@ -1488,62 +1489,62 @@ class Ui_Form(object):
 
         self.verticalLayout_10.addWidget(self.groupBox_2)
 
-        self.groupBox_13 = QGroupBox(self.tab_sys)
-        self.groupBox_13.setObjectName(u"groupBox_13")
-        self.gridLayout_8 = QGridLayout(self.groupBox_13)
+        self.grp_key_sim = QGroupBox(self.tab_sys)
+        self.grp_key_sim.setObjectName(u"grp_key_sim")
+        self.gridLayout_8 = QGridLayout(self.grp_key_sim)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
-        self.btn_rig_poweron = QPushButton(self.groupBox_13)
+        self.btn_rig_poweron = QPushButton(self.grp_key_sim)
         self.btn_rig_poweron.setObjectName(u"btn_rig_poweron")
 
         self.gridLayout_8.addWidget(self.btn_rig_poweron, 0, 0, 1, 1)
 
-        self.btn_rig_dial1_down = QPushButton(self.groupBox_13)
+        self.btn_rig_dial1_down = QPushButton(self.grp_key_sim)
         self.btn_rig_dial1_down.setObjectName(u"btn_rig_dial1_down")
 
         self.gridLayout_8.addWidget(self.btn_rig_dial1_down, 0, 3, 1, 1)
 
-        self.btn_rig_lock = QPushButton(self.groupBox_13)
+        self.btn_rig_lock = QPushButton(self.grp_key_sim)
         self.btn_rig_lock.setObjectName(u"btn_rig_lock")
 
         self.gridLayout_8.addWidget(self.btn_rig_lock, 1, 0, 1, 1)
 
-        self.btn_rig_dial2_down = QPushButton(self.groupBox_13)
+        self.btn_rig_dial2_down = QPushButton(self.grp_key_sim)
         self.btn_rig_dial2_down.setObjectName(u"btn_rig_dial2_down")
 
         self.gridLayout_8.addWidget(self.btn_rig_dial2_down, 1, 3, 1, 1)
 
-        self.btn_rig_poweroff = QPushButton(self.groupBox_13)
+        self.btn_rig_poweroff = QPushButton(self.grp_key_sim)
         self.btn_rig_poweroff.setObjectName(u"btn_rig_poweroff")
 
         self.gridLayout_8.addWidget(self.btn_rig_poweroff, 0, 1, 1, 1)
 
-        self.btn_rig_dial2_up = QPushButton(self.groupBox_13)
+        self.btn_rig_dial2_up = QPushButton(self.grp_key_sim)
         self.btn_rig_dial2_up.setObjectName(u"btn_rig_dial2_up")
 
         self.gridLayout_8.addWidget(self.btn_rig_dial2_up, 1, 2, 1, 1)
 
-        self.btn_rig_fast = QPushButton(self.groupBox_13)
+        self.btn_rig_fast = QPushButton(self.grp_key_sim)
         self.btn_rig_fast.setObjectName(u"btn_rig_fast")
 
         self.gridLayout_8.addWidget(self.btn_rig_fast, 1, 1, 1, 1)
 
-        self.btn_rig_dial1_up = QPushButton(self.groupBox_13)
+        self.btn_rig_dial1_up = QPushButton(self.grp_key_sim)
         self.btn_rig_dial1_up.setObjectName(u"btn_rig_dial1_up")
 
         self.gridLayout_8.addWidget(self.btn_rig_dial1_up, 0, 2, 1, 1)
 
-        self.btn_rig_fast_2 = QPushButton(self.groupBox_13)
+        self.btn_rig_fast_2 = QPushButton(self.grp_key_sim)
         self.btn_rig_fast_2.setObjectName(u"btn_rig_fast_2")
 
         self.gridLayout_8.addWidget(self.btn_rig_fast_2, 0, 4, 1, 1)
 
-        self.btn_rig_vm = QPushButton(self.groupBox_13)
+        self.btn_rig_vm = QPushButton(self.grp_key_sim)
         self.btn_rig_vm.setObjectName(u"btn_rig_vm")
 
         self.gridLayout_8.addWidget(self.btn_rig_vm, 1, 4, 1, 1)
 
 
-        self.verticalLayout_10.addWidget(self.groupBox_13)
+        self.verticalLayout_10.addWidget(self.grp_key_sim)
 
 
         self.horizontalLayout_18.addLayout(self.verticalLayout_10)
@@ -1629,7 +1630,7 @@ class Ui_Form(object):
         self.btn_vfo_num9.setText(QCoreApplication.translate("Form", u"9", None))
         self.btn_vfo_qmb_recall.setText(QCoreApplication.translate("Form", u"QMB\u53d6", None))
         self.btn_vfo_am.setText(QCoreApplication.translate("Form", u"A->M", None))
-        self.btn_vfo_mem_up.setText(QCoreApplication.translate("Form", u"\u9891\u9053-", None))
+        self.btn_vfo_channel_up.setText(QCoreApplication.translate("Form", u"\u9891\u9053-", None))
         self.btn_vfo_num4.setText(QCoreApplication.translate("Form", u"4", None))
         self.btn_vfo_set_b.setText(QCoreApplication.translate("Form", u"B", None))
         self.btn_vfo_ba.setText(QCoreApplication.translate("Form", u"B->A", None))
@@ -1642,7 +1643,7 @@ class Ui_Form(object):
         self.btn_vfo_ab.setText(QCoreApplication.translate("Form", u"A->B", None))
         self.btn_vfo_num8.setText(QCoreApplication.translate("Form", u"8", None))
         self.btn_vfo_ma.setText(QCoreApplication.translate("Form", u"M->A", None))
-        self.btn_vfo_mem_down.setText(QCoreApplication.translate("Form", u"\u9891\u9053+", None))
+        self.btn_vfo_channel_down.setText(QCoreApplication.translate("Form", u"\u9891\u9053+", None))
         self.btn_vfo_num5.setText(QCoreApplication.translate("Form", u"5", None))
         self.btn_vfo_clear.setText(QCoreApplication.translate("Form", u"\u6e05\u7a7a", None))
         self.btn_vfo_swap.setText(QCoreApplication.translate("Form", u"A<>B", None))
@@ -1752,7 +1753,7 @@ class Ui_Form(object):
 
         self.btn_serial_connect.setText(QCoreApplication.translate("Form", u"\u8fde\u63a5", None))
         self.btn_serial_break.setText(QCoreApplication.translate("Form", u"\u65ad\u5f00", None))
-        self.groupBox_13.setTitle(QCoreApplication.translate("Form", u"\u6309\u952e\u6a21\u62df", None))
+        self.grp_key_sim.setTitle(QCoreApplication.translate("Form", u"\u6309\u952e\u6a21\u62df", None))
         self.btn_rig_poweron.setText(QCoreApplication.translate("Form", u"\u7535\u6e90\u5f00", None))
         self.btn_rig_dial1_down.setText(QCoreApplication.translate("Form", u"\u4e3b\u65cb\u94ae-", None))
         self.btn_rig_lock.setText(QCoreApplication.translate("Form", u"LOCK", None))

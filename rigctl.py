@@ -462,8 +462,8 @@ class YaesuCAT3(object):
 
     def channel(self, ch_num=None):
         """选择指定的频道"""
-        # TODO
-        pass
+        return self.func_get('CHANNEL_GET') \
+            if ch_num is None else self.func_set('CHANNEL_SET', CHANNEL=ch_num)
 
     def channel_up(self):
         """上一个频道"""
@@ -482,10 +482,12 @@ class YaesuCAT3(object):
         """波段切换, 无SET方法"""
         # TODO: 待测试异常情况及返回结果, 如某些波段不支持情况
         try:
-            if band in ('UP', 'DOWN'):
-                pass
+            if band == 'UP':
+                self.func_set('BAND_UP_SET')
+            elif band == 'DOWN':
+                self.func_set('BAND_DOWN_SET')
             elif band in self.__config['BAND_SET']['DIM']['BAND'].keys():
-                pass
+                self.func_set('BAND_SET', BAND=band)
         except Exception:
             pass
 
@@ -714,15 +716,17 @@ def main():
     print('root目录:', ROOT_DIR)
     print('conf目录:', CONF_DIR)
     print('-----------------------')
-    show_ports()
+    # show_ports()
 
     # return
     # 使用指定路径下的配置文件, 初始化设备
     rig = rig_factory('yaesu.yaesu-ft-891')
     rig.connect(port='COM3', baudrate=38400)
-    rig.power_on()
+    # rig.power_on()
     # rig.func('FUNNN')
     # print(rig)
+    # print(rig.channel())
+    # rig.channel(1)
 
 
 if __name__ == '__main__':
