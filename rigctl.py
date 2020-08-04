@@ -211,8 +211,8 @@ class YaesuCAT3(object):
                 ))
             return True
 
-    # 函数调用和异常捕捉顺序
-    # 1. 功能函数(如rf_gain)
+    # -------------------------------------------------------------------------
+    # cmd_w 和 cmd_rw 完成两类指令的发送和接收, 报错由上层处理.
     def cmd_w(self, command, debug=False):
         """通过串口向设备发送指令(SET), 返回成功状态"""
         self.__logger.debug('SEND W: %s' % command)
@@ -234,11 +234,9 @@ class YaesuCAT3(object):
 
         recv_str = ''
         while True:
-            # if self.__conn.in_waiting:
-            #     recv_str = self.__conn.read(self.__conn.in_waiting).decode('utf-8')
-            #     break
             if self.__conn.in_waiting:
-                recv_str = recv_str + self.__conn.read(self.__conn.in_waiting).decode('utf-8')
+                recv_str = recv_str + \
+                    self.__conn.read(self.__conn.in_waiting).decode('utf-8')
             if recv_str[-1:] == ';':
                 break
 
@@ -249,12 +247,14 @@ class YaesuCAT3(object):
             raise Exception('返回值错误')
 
         return recv_str
+    # -------------------------------------------------------------------------
 
     # func_set/get函数, 异常:None, 成功: True/{返回字典}
     def func_set(self, func_name, debug=False, **kwargs):
-        """_SET类指令: 根据kwargs, 转换拼接CAT命令, 发送给设备执行
+        """
+        _SET类指令: 根据kwargs, 转换拼接CAT命令, 发送给设备执行
         将函数入参转换格式后进行替换, 拼接串口命令, 按照以下顺序尝试转换:
-        DIM(转码), CONVERT(值转换)或直接替换
+        DIM(转码) > CONVERT(值转换) > 直接替换
         """
         self.__logger.debug('FUNC_SET[%s]: BEGIN.' % func_name)
         try:
@@ -292,15 +292,18 @@ class YaesuCAT3(object):
         except AssertionError as e:     # 测试条件不满足
             self.__logger.error('自检异常: %s' % repr(e))
         except Exception as e:
-            self.__logger.error('通用异常: %s @ %d' % (repr(e), e.__traceback__.tb_lineno))
+            self.__logger.error('通用异常: %s @ %d' % (
+                repr(e), e.__traceback__.tb_lineno
+                ))
         else:
             self.__logger.debug('FUNC_SET[%s]: END.' % func_name)
             return True
 
     def func_get(self, func_name, debug=False):
-        """_GET类: 按READ方式(先发后收)执行命令CMD, 将返回结果按照配置完成转换
+        """
+        _GET类: 按READ方式(先发后收)执行命令CMD, 将返回结果按照配置完成转换
         首先按照RET配置, 截取返回结果, 然后对每段数据, 按照以下顺序尝试转换:
-        DIM(转码), CONVERT(值转换, 整型)或直接返回
+        DIM(转码) > CONVERT(值转换, 整型) > 直接返回
         """
         self.__logger.debug('FUNC_GET[%s]: BEGIN.' % func_name)
         try:
@@ -321,22 +324,27 @@ class YaesuCAT3(object):
                         )))
                 else:
                     func_ret[k] = seg
-                self.__logger.debug('参数[%s]: %s -> %s' % (k, seg, str(func_ret[k])))
-        except IOError as e:        # 串口错误
+                self.__logger.debug('参数[%s]: %s -> %s' % (
+                    k, seg, str(func_ret[k])
+                    ))
+        except IOError as e:            # 串口错误
             self.__conn.close()
             self.__logger.error('串口错误: %s' % repr(e))
-        except KeyError as e:       # 不支持功能或参数
+        except KeyError as e:           # 不支持功能或参数
             self.__logger.error('不支持的功能或参数: %s' % repr(e))
-        except AssertionError as e: # 测试条件不满足
+        except AssertionError as e:     # 测试条件不满足
             self.__logger.error('自检异常: %s' % repr(e))
         except Exception as e:
-            self.__logger.error('通用异常: %s @ %d' % (repr(e), e.__traceback__.tb_lineno))
+            self.__logger.error('通用异常: %s @ %d' % (
+                repr(e), e.__traceback__.tb_lineno
+                ))
         else:
             self.__logger.debug('FUNC_GET[%s]: END.' % func_name)
             return func_ret
 
     def func(self, func_name, debug=False, **kwargs):
-        """不清楚应该调用什么方法时可选择本方法
+        """
+        不清楚应该调用什么方法时可选择本方法
         1. 本方法实现set/get选择, 负责判断是否找到合适的配置和调用方法
         2. 尝试自动重连
         """
@@ -344,7 +352,7 @@ class YaesuCAT3(object):
 
         # 非DEBUG模式下, 若串口未打开, 尝试一次打开, 成功则继续, 否则返回报错.
         if not debug and not self.__conn.is_open:
-            time.sleep(2)  # 避免频繁尝试重连
+            time.sleep(2)   # 避免频繁尝试重连
             self.__logger.info('串口中断, 尝试重新连接')
             if not self.connect():
                 return
@@ -413,6 +421,7 @@ class YaesuCAT3(object):
     # --------------------- 频道和存储设置 VFO/Mem ---------------------
     # 频率格式为: 014 270 000(不含空格), VFO名称: 'A'/'B'
 
+    # TODO: 检查频率格式各机型是否一致, 若不一致考虑添加校验及转换
     def vfo_freq(self, vfo='A', freq=None):
         """给VFO A/B设置频率或获取其频率
         获取频率vfo_freq('A')/vfo_freq('B')
@@ -453,6 +462,7 @@ class YaesuCAT3(object):
 
     def channel(self, ch_num=None):
         """选择指定的频道"""
+        # TODO
         pass
 
     def channel_up(self):
@@ -462,36 +472,38 @@ class YaesuCAT3(object):
     def channel_down(self):
         """下一个频道"""
         return self.func_set('CHANNEL_DOWN_SET')
-    
+
     def channel_info(self, **kwargs):
         """读取/设置存储频道"""
+        # TODO
         pass
 
     def band(self, band=None):
         """波段切换, 无SET方法"""
+        # TODO: 待测试异常情况及返回结果, 如某些波段不支持情况
         try:
             if band in ('UP', 'DOWN'):
                 pass
             elif band in self.__config['BAND_SET']['DIM']['BAND'].keys():
                 pass
-        except:
+        except Exception:
             pass
 
     def mode(self, mode=None):
         """模式切换"""
-        return self.func('MODE_SET', MODE=mode) \
-            if mode else self.func('MODE_GET')
+        return self.func_set('MODE_SET', MODE=mode) \
+            if mode else self.func_get('MODE_GET')
 
     def qmb_store(self):
         """QMB功能存储"""
-        return self.func('QMB_STORE_SET')
+        return self.func_set('QMB_STORE_SET')
 
     def qmb_recall(self):
         """QMB功能取出"""
-        return self.func('QMB_RECALL_SET')
+        return self.func_set('QMB_RECALL_SET')
 
     # ----------------------- 仪表读取 Meter -----------------------
-
+    # 设置设备当前仪表功能, 由于非通用功能, 不作实现.
     def meter(self, name):
         """读取仪表数值"""
         meter_dict = {
@@ -505,35 +517,38 @@ class YaesuCAT3(object):
             'IDD': 'METER_IDD_GET',
             'VDD': 'METER_VDD_GET'
         }
+        # 若参数错误或设备不支持, 默认返回0
         if name in meter_dict:
-            return self.func(meter_dict[name])
+            ret = self.func_get(meter_dict[name])
+            return ret if ret else 0
         else:
             return 0
 
     # ------------------------- 等幅报 CW -------------------------
 
     def bk_in(self, status=None):
-        return self.func('BREAK_IN_SET', STATUS=status) \
-            if status else self.func('BREAK_IN_GET')
+        return self.func_set('BREAK_IN_SET', STATUS=status) \
+            if status else self.func_get('BREAK_IN_GET')
 
     def bk_in_delay(self, delay_ms=None):
-        return self.func('BREAK_IN_DELAY_SET', DELAY=delay_ms) \
-            if delay_ms else self.func('BREAK_IN_DELAY_GET')
+        return self.func_set('BREAK_IN_DELAY_SET', DELAY=delay_ms) \
+            if delay_ms else self.func_get('BREAK_IN_DELAY_GET')
 
     def cw_pitch(self, pitch=None):
-        return self.func('CW_PITCH_SET', PITCH=pitch) \
-            if pitch else self.func('CW_PITCH_GET')
+        return self.func_set('CW_PITCH_SET', PITCH=pitch) \
+            if pitch else self.func_get('CW_PITCH_GET')
 
     def cw_speed(self, wpm):
-        return self.func('CW_SPEED_SET', WPM=wpm) \
-            if wpm else self.func('CW_SPEED_GET')
+        return self.func_set('CW_SPEED_SET', WPM=wpm) \
+            if wpm else self.func_get('CW_SPEED_GET')
 
     def cw_keyer(self, status):
-        return self.func('CW_KEYER_SET', STATUS=status) \
-            if status else self.func('CW_KEYER_GET')
+        return self.func_set('CW_KEYER_SET', STATUS=status) \
+            if status else self.func_get('CW_KEYER_GET')
 
     # ######################### CLAR #########################
 
+    # TODO
     def clar_rx(self, status=None):
         pass
 
@@ -549,147 +564,149 @@ class YaesuCAT3(object):
     # ######################### FM #########################
 
     def sql(self, val=None):
-        return self.func('SQL_LEVEL_SET', VAL=val) \
-            if val else self.func('SQL_LEVEL_GET')
+        return self.func_set('SQL_LEVEL_SET', VAL=val) \
+            if val else self.func_get('SQL_LEVEL_GET')
 
     # ######################### Rig status #########################
 
     def led_rx(self):
-        return self.func('LED_RX_GET')
+        return self.func_get('LED_RX_GET')
 
     def led_tx(self):
-        return self.func('LED_TX_GET')
+        return self.func_get('LED_TX_GET')
 
     def led_hi_swr(self):
-        return self.func('LED_HI_SWR_GET')
+        return self.func_get('LED_HI_SWR_GET')
 
     def led_rec(self):
-        return self.func('LED_REC_GET')
+        return self.func_get('LED_REC_GET')
 
     def led_play(self):
-        return self.func('LED_PLAY_GET')
+        return self.func_get('LED_PLAY_GET')
 
     def led_vfo_a_tx(self):
-        return self.func('LED_VFO_A_TX_GET')
+        return self.func_get('LED_VFO_A_TX_GET')
 
     def led_vfo_a_rx(self):
-        return self.func('LED_VFO_A_RX_GET')
+        return self.func_get('LED_VFO_A_RX_GET')
 
     def led_vfo_b_tx(self):
-        return self.func('LED_VFO_B_TX_GET')
+        return self.func_get('LED_VFO_B_TX_GET')
 
     def led_vfo_b_rx(self):
-        return self.func('LED_VFO_B_RX_GET')
+        return self.func_get('LED_VFO_B_RX_GET')
 
     # ######################### TX/RX #########################
 
     def agc(self, mode=None):
-        return self.func('AGC_SET', MODE=mode) \
-            if mode else self.func('AGC_GET')
+        return self.func_set('AGC_SET', MODE=mode) \
+            if mode else self.func_get('AGC_GET')
 
     def att(self, status=None):
-        return self.func('ATT_SET', STATUS=status) \
-            if status else self.func('ATT_GET')
+        return self.func_set('ATT_SET', STATUS=status) \
+            if status else self.func_get('ATT_GET')
 
     def atu(self, status=None):
-        return self.func('ATU_SET', STATUS=status) \
-            if status else self.func('ATU_GET')
+        return self.func_set('ATU_SET', STATUS=status) \
+            if status else self.func_get('ATU_GET')
 
     def rf_power(self, val=None):
-        return self.func('RF_POWER_SET', VAL=val) \
-            if val else self.func('RF_POWER_GET')
+        return self.func_set('RF_POWER_SET', VAL=val) \
+            if val else self.func_get('RF_POWER_GET')
 
     def ipo(self, status=None):
-        return self.func('IPO_SET', STATUS=status) \
-            if status else self.func('IPO_GET')
+        return self.func_set('IPO_SET', STATUS=status) \
+            if status else self.func_get('IPO_GET')
 
     def narrow(self, status=None):
-        return self.func('NARROW_SET', STATUS=status) \
-            if status else self.func('NARROW_GET')
+        return self.func_set('NARROW_SET', STATUS=status) \
+            if status else self.func_get('NARROW_GET')
 
     def monitor(self, status=None):
-        return self.func('MONITOR_SET', STATUS=status) \
-            if status else self.func('MONITOR_GET')
+        return self.func_set('MONITOR_SET', STATUS=status) \
+            if status else self.func_get('MONITOR_GET')
 
     def monitor_level(self, val):
-        return self.func('MONITOR_LEVEL_SET', VAL=val) \
-            if val else self.func('MONITOR_LEVEL_GET')
+        return self.func_set('MONITOR_LEVEL_SET', VAL=val) \
+            if val else self.func_get('MONITOR_LEVEL_GET')
 
     def mox(self, status):
-        return self.func('MOX_SET', STATUS=status) \
-            if status else self.func('MOX_GET')
+        return self.func_set('MOX_SET', STATUS=status) \
+            if status else self.func_get('MOX_GET')
 
     def scan(self, status):
-        return self.func('SCAN_SET', STATUS=status) \
-            if status else self.func('SCAN_GET')
+        return self.func_set('SCAN_SET', STATUS=status) \
+            if status else self.func_get('SCAN_GET')
 
     def if_shift(self, val):
-        return self.func('IF_SHIFT_SET', SHIFT=val) \
-            if val else self.func('IF_SHIFT_GET')
+        return self.func_set('IF_SHIFT_SET', SHIFT=val) \
+            if val else self.func_get('IF_SHIFT_GET')
 
     def split(self):
+        # TODO
         return self.func('SPLIT_GET')
 
     def vox(self, status=None):
-        return self.func('VOX_SET', STATUS=status) \
-            if status else self.func('VOX_GET')
+        return self.func_set('VOX_SET', STATUS=status) \
+            if status else self.func_get('VOX_GET')
 
     def vox_delay(self, delay_ms=None):
-        return self.func('VOX_DELAY_SET', DELAY=delay_ms) \
-            if delay_ms else self.func('VOX_DELAY_GET')
+        return self.func_set('VOX_DELAY_SET', DELAY=delay_ms) \
+            if delay_ms else self.func_get('VOX_DELAY_GET')
 
     def width(self, val):
-        return self.func('WIDTH_SET', WIDTH=val) \
-            if val else self.func('WIDTH_GET')
+        return self.func_set('WIDTH_SET', WIDTH=val) \
+            if val else self.func_get('WIDTH_GET')
 
     # ######################### DSP #########################
 
     def nb(self, status=None):
-        return self.func('NB_SET', STATUS=status) \
-            if status else self.func('NB_GET')
+        return self.func_set('NB_SET', STATUS=status) \
+            if status else self.func_get('NB_GET')
 
     def nb_level(self, val):
-        return self.func('NB_LEVEL_SET', VAL=val) \
-            if val else self.func('NB_LEVEL_GET')
+        return self.func_set('NB_LEVEL_SET', VAL=val) \
+            if val else self.func_get('NB_LEVEL_GET')
 
     def nr(self, status):
-        return self.func('NR_SET', STATUS=status) \
-            if status else self.func('NR_GET')
+        return self.func_set('NR_SET', STATUS=status) \
+            if status else self.func_get('NR_GET')
 
     def nr_level(self, val):
-        return self.func('NR_LEVEL_SET', VAL=val) \
-            if val else self.func('NR_LEVEL_GET')
+        return self.func_set('NR_LEVEL_SET', VAL=val) \
+            if val else self.func_get('NR_LEVEL_GET')
 
     def apf(self, status):
-        return self.func('APF_SET', STATUS=status) \
-            if status else self.func('APF_GET')
+        return self.func_set('APF_SET', STATUS=status) \
+            if status else self.func_get('APF_GET')
 
     def apf_freq(self, freq):
-        return self.func('APF_FREQ_SET', FREQ=freq) \
-            if freq else self.func('APF_FREQ_GET')
+        return self.func_set('APF_FREQ_SET', FREQ=freq) \
+            if freq else self.func_get('APF_FREQ_GET')
 
     def contour(self, status):
-        return self.func('CONTOUR_SET', STATUS=status) \
-            if status else self.func('CONTOUR_GET')
+        return self.func_set('CONTOUR_SET', STATUS=status) \
+            if status else self.func_get('CONTOUR_GET')
 
     def contour_freq(self, freq):
-        return self.func('CONTOUR_FREQ_SET', FREQ=freq) \
-            if freq else self.func('CONTOUR_FREQ_GET')
+        return self.func_set('CONTOUR_FREQ_SET', FREQ=freq) \
+            if freq else self.func_get('CONTOUR_FREQ_GET')
 
     def notch(self, status):
+        # TODO
         pass
 
     def notch_auto(self, status):
-        return self.func('NOTCH_AUTO_SET', STATUS=status) \
-            if status else self.func('NOTCH_AUTO_GET')
+        return self.func_set('NOTCH_AUTO_SET', STATUS=status) \
+            if status else self.func_get('NOTCH_AUTO_GET')
 
     def notch_manual(self, status):
-        return self.func('NOTCH_MANUAL_SET', STATUS=status) \
-            if status else self.func('NOTCH_MANUAL_GET')
+        return self.func_set('NOTCH_MANUAL_SET', STATUS=status) \
+            if status else self.func_get('NOTCH_MANUAL_GET')
 
     def notch_manual_freq(self, freq):
-        return self.func('NOTCH_MANUAL_FREQ_SET', FREQ=freq) \
-            if freq else self.func('NOTCH_MANUAL_FREQ_GET')
+        return self.func_set('NOTCH_MANUAL_FREQ_SET', FREQ=freq) \
+            if freq else self.func_get('NOTCH_MANUAL_FREQ_GET')
 
 
 def main():
