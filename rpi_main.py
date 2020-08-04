@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import QApplication, QWidget
-from Ui_rpi_hvga import Ui_Form
+from ui.Ui_rpi_hvga import Ui_Form
 from PySide2.QtCore import Qt
 import serial.tools.list_ports
 
