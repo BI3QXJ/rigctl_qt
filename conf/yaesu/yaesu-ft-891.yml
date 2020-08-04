@@ -1,0 +1,1326 @@
+MODEL: FT-891
+CLASS: YaesuCAT3
+IMPORT:
+  - yaesu.yaesu-cat3
+
+NULL_CMD:
+  CMD: ' '
+
+# -----------------------< ID 机型识别 >-----------------------
+ID_GET:
+  DEBUG: ID0650;
+  CMD: ID;
+  RET:
+    ID: 2,6
+  DIM:
+    ID:
+      '0650': 'FT-891'
+      '0241': 'FT-450'
+      '0244': 'FT-450D'
+      '0570': 'FT-991'
+      '0670': 'FT-991A'
+      '0251': 'FT-2000'
+      '0252': 'FT-2000D'
+      '0582': 'FT-DX1200(FFT-1)'
+      '0583': 'FT-DX1200'
+      # 'XXXX': 'FT-DX3000'
+      '0362': 'FT-DX5000'
+      '0101': 'FT-DX9000D'
+      '0102': 'FT-DX9000Contest'
+      '0103': 'FT-DX9000MP'
+# -----------------------</ ID 机型识别 >-----------------------
+
+
+# -----------------------< GAIN 增值设置和读取 >-----------------------
+AF_GAIN_SET:
+  CMD: AG0{$VAL};
+  CONVERT: 
+    VAL: 
+      EXPS: x * 2.55
+      FORM: R|3|0
+AF_GAIN_GET:
+  DEBUG: AG0255;
+  CMD: AG0;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x / 2.55
+RF_GAIN_SET:
+  CMD: RG0{$VAL};
+  CONVERT:
+    VAL:
+      EXPS: x / 3.33
+      FORM: R|3|0
+RF_GAIN_GET:
+  DEBUG: RG0255;
+  CMD: RG0;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x * 3.33
+MIC_GAIN_SET:
+  CMD: MG{$VAL};
+  CONVERT:
+    VAL:
+      EXPS: x
+      FORM: R|3|0
+MIC_GAIN_GET:
+  CMD: MG;
+  RET:
+    VAL: 2,5
+  CONVERT:
+    VAL: x
+VOX_GAIN_SET:
+  CMD: VG{$VAL};
+  CONVERT:
+    VAL:
+      EXPS: x
+      FORM: R|3|0
+VOX_GAIN_GET:
+  DEBUG: VG100;
+  CMD: VG;
+  RET:
+    VAL: 2,5
+  CONVERT:
+    VAL: x
+# -----------------------</ GAIN 增值设置和读取 >-----------------------
+
+
+# -----------------------< V/M >-----------------------
+# 频道操作和波段操作, 为大多数设备共有
+# 部分无某些功能的设备在自己的配置中'无效化' 
+VFO_A_FREQ_SET:
+  CMD: FA{$FREQ};
+  CONVERT:
+    FREQ:
+      EXPS: x
+      FORM: R|9|0
+VFO_A_FREQ_GET:
+  DEBUG: FA056000000;
+  CMD: FA;
+  RET:
+    FREQ: 2,11
+VFO_B_FREQ_SET:
+  CMD: FB{$FREQ};
+  CONVERT:
+    FREQ:
+      EXPS: x
+      FORM: R|9|0
+VFO_B_FREQ_GET:
+  DEBUG: FB057000000;
+  CMD: FB;
+  RET:
+    FREQ: 2,11
+
+# 样例, 各机型需在配置中覆盖
+VFO_A_GET:
+  DEBUG: IF099014270550+100010102000;
+  CMD: IF;
+  RET:
+    CHANNEL: 2,5          # P1 - 3  - 直接返回
+    FREQ: 5,14            # P2 - 9
+    CLAR_DIRECT: 14,15    # P3 - 1
+    CLAR_OFFSET: 15,19    # P3 - 4
+    CLAR_STATUS: 19,20    # P4 - 1
+                          # P5 - (0)
+    MODE: 21,22           # P6 - 1
+    CHANNEL_TYPE: 22,23   # P7 - 1
+    CTCSS: 23,24          # P8 - 1
+                          # P9 - (00)
+    DIFF: 26,27           # P10 - 1
+  CONVERT:
+    FREQ: x
+    CLAR_OFFSET: x
+  DIM:
+    CLAR_DIRECT:
+      '-': '-'
+      '+': '+'
+    CLAR_STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+    MODE:
+      '1': 'LSB'
+      '2': 'USB'
+      '3': 'CW'     # CW-U
+      '4': 'FM'
+      '5': 'AM'
+      '6': 'RTTY-L'
+      '7': 'CW-R'   # CW-L
+      '8': 'DATA-L' # USER-L
+      '9': 'RTTY-U'
+      'A': 'DATA-FM'
+      'B': 'FM-N'
+      'C': 'DATA-U' # USER-U
+      'D': 'AM-N'
+      'E': 'C4FM'
+    CHANNEL_TYPE:
+      '0': 'VFO'
+      '1': 'M'
+      '2': 'MT'
+      '3': 'QMB'
+      '4': 'QMB-MT'
+      '5': 'PMS'
+      '6': 'HOME'
+    CTCSS:
+      '0': 'CTCSS_OFF'
+      '1': 'CTCSS_ENC/DEC'
+      '2': 'CTCSS_ENC'
+      '3': 'DCS_ENC/DEC'
+      '4': 'DCS_ENC'
+    DIFF:
+      '0': 'SIMPLEX'
+      '1': 'PLUS_SHIFT'
+      '2': 'MINUS_SHIFT'
+VFO_B_GET:    # 待完善
+  DEBUG: OI099014270550+100010102000;
+  CMD: OI;
+  RET:
+    CHANNEL: 2,5          # P1
+    FREQ: 5,14            # P2
+    CLAR_DIRECT: 14,15    # P3
+    CLAR_OFFSET: 15,19    # P3
+    CLAR_STATUS: 19,20    # P4
+    MODE: 21,22           # P6
+    CH_TYPE: 22,23        # P7
+    CTCSS: 23,24          # P8
+    DIFF: 26,27           # P10
+  CONVERT:
+  DIM:
+    CLAR_STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+    MODE:
+      '1': 'LSB'
+      '2': 'USB'
+      '3': 'CW-U'
+      '4': 'FM'
+      '5': 'AM'
+      '6': 'RTTY-L'
+      '7': 'CW-R'
+      '8': 'DATA-L'
+      '9': 'RTTY-U'
+      'A': 'DATA-FM'
+      'B': 'FM'
+      'C': 'DATA-U'
+      'D': 'AM'
+      'E': 'C4FM'
+    CH_TYPE:
+      '0': 'VFO'
+      '1': 'M'
+      '2': 'MT'
+      '5': 'PMS'
+    CTCSS:
+      '0': 'OFF'
+      '1': 'ENC/DEC'
+      '2': 'ENC'
+    DIFF:
+      '0': 'SIMPLEX'
+      '1': 'PLUS'
+      '2': 'MINUS'
+VFO_SWAP_SET:
+  CMD: SV;
+VFO_A_B_SET:
+  CMD: AB;
+VFO_A_M_SET:
+  CMD: AM;    # VM;
+VFO_B_A_SET:
+  CMD: BA;
+VFO_M_A_SET:
+  CMD: MA;
+# 原始输入未解决
+CHANNEL_SET:
+  CMD: MC{$CHANNEL};
+  CONVERT:
+    CHANNEL:
+      EXPS: x
+      FORM: R|3|0
+CHANNEL_GET:
+  DEBUG: MC099;
+  CMD: MC;
+  RET:
+    CHANNEL: 2,5
+CHANNEL_UP_SET:
+  CMD: CH0;
+CHANNEL_DOWN_SET:
+  CMD: CH1;
+# 读取频道命令, 需先填入参数, 然后READ, 暂注释掉
+# MEMORY_CHANNEL_READ:
+#   CMD: MR{$CHANNEL};
+#   CONVERT:
+#   DIM:
+# 读取频道命令, 需先填入参数, 然后READ, 暂注释掉
+# MEMORY_CHANNEL_WRITE:
+#   CMD: MW{$CHANNEL};
+#   CONVERT:
+#   DIM:
+
+# 此功能各机型按实际情况配置
+BAND_SET:
+  CMD: BS{$BAND};
+  DIM:
+    BAND:
+      '1.8M': '00'
+      '3.5M': '01'
+      '5.3M': '02'
+      '7M':   '03'
+      '10M':  '04'
+      '14M':  '05'
+      '18M':  '06'
+      '21M':  '07'
+      '24.5M': '08'
+      '28M':  '09'
+      '50M':  '10'
+      'GEN':  '11'
+      'MW':   '12'
+      '-':    '13'
+      'AIR':  '14'
+      '144M': '15'
+      '430M': '16'
+BAND_DOWN_SET:
+  CMD: BD0;
+BAND_UP_SET:
+  CMD: BU0;
+MODE_SET:
+  CMD: MD0{$MODE};
+  DIM:
+    MODE:
+      'LSB': '1'
+      'USB': '2'
+      'CW-U': '3'
+      'FM': '4'
+      'AM': '5'
+      'RTTY-LSB': '6'
+      'CW-L': '7'
+      'DATA-LSB': '8'
+      'RTTY-USB': '9'
+      'DATA-FM': 'A'
+      'FM-N': 'B'
+      'DATA-USB': 'C'
+      'AM-N': 'D'
+      'C4FM': 'E'
+MODE_GET:
+  DEBUG: MD0D;
+  CMD: MD0;
+  RET:
+    MODE: 3,4
+  DIM:
+    MODE:   # 991     450          891        1200
+      '1': 'LSB'      #            SSB(BFO)
+      '2': 'USB'      #            SSB(BFO)
+      '3': 'CW-U'     # CW         CW         CW
+      '4': 'FM'
+      '5': 'AM'
+      '6': 'RTTY-LSB' # DATA(R-L)  RTTY(BFO)
+      '7': 'CW-L'     # CW-R       CW(BFO)    CW-R
+      '8': 'DATA-LSB' # USER-L     DATA(BFO)
+      '9': 'RTTY-USB' # DATA(R-U)  RTTY(BFO)
+      'A': 'DATA-FM'  #            -          -
+      'B': 'FM-N'
+      'C': 'DATA-USB' # USER-U     DATA(BFO)  DATA-USB
+      'D': 'AM-N'
+      'E': 'C4FM'
+QMB_STORE_SET:
+  CMD: QI;
+QMB_RECALL_SET:
+  CMD: QR;
+# -----------------------</ V/M >-----------------------
+
+
+# -----------------------< METER >-----------------------
+# RM:
+# 0:PANEL  1:S_MAIN  2:S_SUB  3:COMP  4:ALC
+# 5:POW    6:SWR     7:IDD    8:VDD
+METER_S_READING_GET:
+  DEBUG: SM0255;
+  CMD: SM0;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x
+METER_S_GET:
+  DEBUG: RM1255;
+  CMD: RM1;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x    # 0~255
+
+# 仅DX5000
+# METER_S_MAIN_GET:
+#   DEBUG: RM1255;
+#   CMD: RM1;
+#   RET:
+#     VAL: 3,6
+#   CONVERT:
+#     VAL: x    # 0~255
+# METER_S_SUB_GET:
+#   DEBUG: RM1255;
+#   CMD: RM1;
+#   RET:
+#     VAL: 3,6
+#   CONVERT:
+#     VAL: x    # 0~255
+
+METER_CMP_GET:
+  DEBUG: RM3255;
+  CMD: RM3;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x    # 0~255
+METER_ALC_GET:
+  DEBUG: RM4255;
+  CMD: RM4;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x    # 0~255
+METER_POW_GET:
+  DEBUG: RM5255;
+  CMD: RM5;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x    # 0~255
+METER_SWR_GET:
+  DEBUG: RM6255;
+  CMD: RM6;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x    # 0~255
+METER_IDD_GET:
+  DEBUG: RM7255;
+  CMD: RM7;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x    # 0~255
+METER_VDD_GET:
+  DEBUG: RM8255;
+  CMD: RM8;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x    # 0~255
+METER_SELECT_SET:
+  CMD: MS{$METER};
+  DIM:
+    METER:
+      'CMP': '0'
+      'ALC': '1'
+      'POW': '2'
+      'SWR': '3'
+      'IDD': '4'
+      'VDD': '5'
+METER_SELECT_GET:
+  DEBUG: MS4;
+  CMD: MS;
+  RET:
+    METER: 2,3
+  DIM:
+    METER:
+      '0': 'CMP'
+      '1': 'ALC'
+      '2': 'POW'
+      '3': 'SWR'
+      '4': 'IDD'
+      '5': 'VDD'
+# -----------------------</ METER >-----------------------
+
+
+# -----------------------< CW >-----------------------
+BREAK_IN_SET:
+  CMD: BI{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+BREAK_IN_GET:
+  DEBUG: BI1;
+  CMD: BI;
+  RET: 
+    STATUS: 2,3
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+BREAK_IN_DELAY_SET:
+  CMD: SD{$DELAY};
+  CONVERT:
+    DELAY:
+      EXPS: x 
+      FORM: R|4|0
+BREAK_IN_DELAY_GET:
+  DEBUG: SD3000;
+  CMD: SD;
+  RET:
+    DELAY: 2,6
+  CONVERT:
+    DELAY: x
+CW_SPOT_SET:
+  CMD: CS{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+CW_SPOT_GET:
+  DEBUG: CS1;
+  CMD: CS;
+  RET:
+    STATUS: 2,3
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+CW_KEYER_SET:
+  CMD: KR{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+CW_KEYER_GET:
+  DEBUG: KR1;
+  CMD: KR;
+  RET:
+    STATUS: 2,3
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+CW_PITCH_SET:
+  CMD: KP{$FREQ};
+  CONVERT:
+    FREQ:
+      EXPS: x / 10 - 30
+      FORM: R|2|0
+CW_PITCH_GET:
+  DEBUG: KP75;
+  CMD: KP;
+  RET:
+    FREQ: 2,4
+  CONVERT:
+    FREQ: (x + 30) * 10
+CW_SPEED_SET:
+  CMD: KS{$SPEED};
+  CONVERT:
+    SPEED:
+      EXPS: x
+      FORM: R|3|0
+CW_SPEED_GET:
+  DEBUG: KS060;
+  CMD: KS;
+  RET: 
+    SPEED: 2,5
+  CONVERT:
+    SPEED: x
+# 待解决参数原样输入的问题
+# CW_KEYER_MEMORY_SET:
+#   CMD: KM{$CHANNEL}{$MESSAGE};
+# 需输入待读取的CHANNEL, 返回
+# CW_KEYER_MEMORY_GET:
+#   CMD: KM{$CHANNEL}
+# -----------------------</ CW >-----------------------
+
+
+# -----------------------< CLAR >-----------------------
+# 1. 891的CAT命令, 不区分RX/TX, 通过菜单EX实现, 使用STATUS+TYPE
+# 2. 其余机型区分RX/TX(450无TX CLAR), 使用TX+RX
+# 3. 需求: 设置RX或TX的CLAR, 读取当前类型, 设置频率
+
+CLAR_RX_SET:
+  CMD: RT{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+CLAR_RX_GET:
+  DEBUG:
+  CMD: RT;
+  RET:
+    STATUS: 2,3
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+CLAR_TX_SET:
+  CMD: XT{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+CLAR_TX_GET:
+  DEBUG:
+  CMD: XT;
+  RET:
+    STATUS: 2,3
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+
+# 891/991单独实现
+# CLAR_TYPE_SET:
+# CLAR_TYPE_GET:
+
+# 891单独实现
+# CLAR_STATUS_SET:
+# CLAR_STATUS_GET:
+
+CLAR_CLEAR_SET:
+  CMD: RC;
+CLAR_DOWN_SET:
+  CMD: RD{$FREQ};
+  CONVERT:
+    FREQ:
+      EXPS: x
+      FROM: R|4|0
+CLAR_UP_SET:
+  CMD: RU{$FREQ};
+  CONVERT:
+    FREQ:
+      EXPS: x
+      FROM: R|4|0
+# -----------------------</ CLAR >-----------------------
+
+
+# -----------------------< FM >-----------------------
+CTCSS_SET:
+  CMD: CT0{$TYPE};
+  DIM:
+    TYPE:
+      'CTCSS_OFF': '0'
+      'CTCSS_ENC_DEC_ON': '1'
+      'CTCSS_ENC_ON': '2'
+
+CTCSS_GET:
+  DEBUG: CT03;
+  CMD: CT0;
+  RET:
+    TYPE: 3,4
+  DIM:
+    TYPE:
+      '0': 'CTCSS_OFF'
+      '1': 'CTCSS_ENC_DEC_ON'
+      '2': 'CTCSS_ENC_ON'
+
+# 891/991默认配置, 450,1200额外配置
+CTCSS_TONE_SET:
+  CMD: CN00{$TONE};
+  DIM:
+    TONE:
+      '67.0Hz': '000'
+      '69.3Hz': '001'
+      '71.9Hz': '002'
+      '74.4Hz': '003'
+      '77.0Hz': '004'
+      '79.7Hz': '005'
+      '82.5Hz': '006'
+      '85.4Hz': '007'
+      '88.5Hz': '008'
+      '91.5Hz': '009'
+      '94.8Hz': '010'
+      '97.4Hz': '011'
+      '100.0Hz': '012'
+      '103.5Hz': '013'
+      '107.2Hz': '014'
+      '110.9Hz': '015'
+      '114.8Hz': '016'
+      '118.8Hz': '017'
+      '123.0Hz': '018'
+      '127.3Hz': '019'
+      '131.8Hz': '020'
+      '136.5Hz': '021'
+      '141.3Hz': '022'
+      '146.2Hz': '023'
+      '151.4Hz': '024'
+      '156.7Hz': '025'
+      '159.8Hz': '026'
+      '162.2Hz': '027'
+      '165.5Hz': '028'
+      '167.9Hz': '029'
+      '171.3Hz': '030'
+      '173.8Hz': '031'
+      '177.3Hz': '032'
+      '179.9Hz': '033'
+      '183.5Hz': '034'
+      '186.2Hz': '035'
+      '189.9Hz': '036'
+      '192.8Hz': '037'
+      '196.6Hz': '038'
+      '199.5Hz': '039'
+      '203.5Hz': '040'
+      '206.5Hz': '041'
+      '210.7Hz': '042'
+      '218.1Hz': '043'
+      '225.7Hz': '044'
+      '229.1Hz': '045'
+      '233.6Hz': '046'
+      '241.8Hz': '047'
+      '250.3Hz': '048'
+      '254.1Hz': '049'
+      
+CTCSS_TONE_GET:
+  DEBUG: CN00049;
+  CMD: CN00;
+  RET:
+    TONE: 4,7
+  DIM:
+    TONE:
+      '000': '67.0Hz'
+      '001': '69.3Hz'
+      '002': '71.9Hz'
+      '003': '74.4Hz'
+      '004': '77.0Hz'
+      '005': '79.7Hz'
+      '006': '82.5Hz'
+      '007': '85.4Hz'
+      '008': '88.5Hz'
+      '009': '91.5Hz'
+      '010': '94.8Hz'
+      '011': '97.4Hz'
+      '012': '100.0Hz'
+      '013': '103.5Hz'
+      '014': '107.2Hz'
+      '015': '110.9Hz'
+      '016': '114.8Hz'
+      '017': '118.8Hz'
+      '018': '123.0Hz'
+      '019': '127.3Hz'
+      '020': '131.8Hz'
+      '021': '136.5Hz'
+      '022': '141.3Hz'
+      '023': '146.2Hz'
+      '024': '151.4Hz'
+      '025': '156.7Hz'
+      '026': '159.8Hz'
+      '027': '162.2Hz'
+      '028': '165.5Hz'
+      '029': '167.9Hz'
+      '030': '171.3Hz'
+      '031': '173.8Hz'
+      '032': '177.3Hz'
+      '033': '179.9Hz'
+      '034': '183.5Hz'
+      '035': '186.2Hz'
+      '036': '189.9Hz'
+      '037': '192.8Hz'
+      '038': '196.6Hz'
+      '039': '199.5Hz'
+      '040': '203.5Hz'
+      '041': '206.5Hz'
+      '042': '210.7Hz'
+      '043': '218.1Hz'
+      '044': '225.7Hz'
+      '045': '229.1Hz'
+      '046': '233.6Hz'
+      '047': '241.8Hz'
+      '048': '250.3Hz'
+      '049': '254.1Hz'
+
+# DCS_CODE_SET:
+# DCS_CODE_GET:
+
+RPT_OFFSET_DIRECT_SET:
+  CMD: OS0{$STATUS};
+  DIM:
+    STATUS:
+      'SIMPLEX': '0'
+      'PLUS': '1'
+      'MINUS': '2'
+RPT_OFFSET_DIRECT_GET:
+  DEBUG: OS02;
+  CMD: OS0;
+  RET:
+    STATUS: 3,4
+  DIM:
+    STATUS:
+      '0': 'SIMPLEX'
+      '1': 'PLUS'
+      '2': 'MINUS'
+
+SQL_LEVEL_SET:
+  CMD: SQ0{$VAL};
+  CONVERT:
+    VAL:
+      EXPS: x
+      FORM: R|3|0
+SQL_LEVEL_GET:
+  DEBUG: SQ0100;
+  CMD: SQ0;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x
+# -----------------------</ FM >-----------------------
+
+# -----------------------< SYSTEM >-----------------------
+RX_BUSY_GET:
+  DEBUG:
+  CMD: BY;
+  RET:
+    STATUS: 2,3
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+
+# RI: 0:HI_SWR  1:MIC_EQ  2:    3:REC  4:PLAY  5:VFO_A_TX  6:VFO_B_TX  7:VFO_A_RX  8:VFO_B_RX  9:u-tune  A:TX_LED  B:RX_LED
+#     公有      ----            公有    公有    <--可选显示, 不支持机型不显示------------------>  ----      总显示:RX=RX_BUSY, TX用RIA; 或读表实现
+# 450:0134  891:034AB  991:034567A  1200:013456789
+LED_HI_SWR_GET:
+  DEBUG: RI01;
+  CMD: RI0;
+  RET:
+    STATUS: 3,4
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+LED_REC_GET:
+  DEBUG: RI31;
+  CMD: RI3;
+  RET:
+    STATUS: 3,4
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+LED_PLAY_GET:
+  DEBUG: RI41;
+  CMD: RI4;
+  RET:
+    STATUS: 3,4
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+
+# 以下为机型各自配置
+# LED_MIC_EQ_GET    1
+# LED_RX_GET        A
+# LED_TX_GET        B
+# LED_VFO_A_TX_GET  5
+# LED_VFO_B_TX_GET  6
+# LED_VFO_A_RX_GET  7
+# LED_VFO_B_RX_GET  8
+# LED_UTUNE_GET     9
+
+
+# KEY_LOCK_SET:
+# KEY_LOCK_GET:
+# KEY_FAST_SET:
+# KEY_FAST_GET:
+# KEY_VM_SET:
+# KEY_ENT_SET:
+# DIAL_MAIN_UP_SET:
+# DIAL_MAIN_DOWN_SET:
+# DIAL_SUB_UP_SET:
+# DIAL_SUB_DOWN_SET:
+# STATUS_MENU_GET:
+
+
+POWER_SET:
+  CMD: PS{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+POWER_ON_SET:
+  CMD: PS1;
+POWER_OFF_SET:
+  CMD: PS0;
+POWER_GET:
+  DEBUG: PS1;
+  CMD: PS;
+  RET:
+    STATUS: 2,3
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+# -----------------------</ SYSTEM >-----------------------
+
+
+# -----------------------< RX/TX >-----------------------
+AGC_SET:
+  CMD: GT0{$MODE};
+  DIM:
+    MODE:
+      'OFF': '0'
+      'FAST': '1'
+      'MID': '2'
+      'SLOW': '3'
+      'AUTO': '4'
+# 450 为0-4
+AGC_GET:
+  DEBUG: GT06;
+  CMD: GT0;
+  RET:
+    MODE: 3,4
+  DIM:
+    MODE:
+      '0': 'OFF'
+      '1': 'FAST'
+      '2': 'MID'
+      '3': 'SLOW'
+      '4': 'AUTO_FAST'
+      '5': 'AUTO_MID'
+      '6': 'AUTO_SLOW'
+ATT_SET:
+  CMD: RA0{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+ATT_GET:
+  DEBUG: RA01;
+  CMD: RA0;
+  RET:
+    STATUS: 3,4
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+ATU_SET:
+  CMD: AC00{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+      'TUNING': '2'
+ATU_GET:
+  DEBUG: AC002;
+  CMD: AC;
+  RET:
+    STATUS: 4,5
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+      '2': 'TUNING'
+RF_POWER_SET:
+  CMD: PC{$VAL};
+  CONVERT:
+    VAL:
+      EXPS: x
+      FORM: R|3|0
+RF_POWER_GET:
+  DEBUG: PC100;
+  CMD: PC;
+  RET:
+    VAL: 2,5
+  CONVERT:
+    VAL: x
+IPO_SET:
+  CMD: PA0{$STATUS};
+  DIM:
+    STATUS:
+      'IPO': '0'
+      'AMP': '1'
+IPO_GET:
+  DEBUG: PA01;
+  CMD: PA0;
+  RET:
+    STATUS: 3,4
+  DIM:
+    STATUS:
+      '0': 'IPO'
+      '1': 'AMP'
+NARROW_SET:
+  CMD: NA0{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+NARROW_GET:
+  DEBUG: NA01;
+  CMD: NA0;
+  RET:
+    STATUS: 3,4
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+MONITOR_SET:
+  CMD: ML0{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '000'
+      'ON': '001'
+MONITOR_GET:
+  DEBUG: ML0001;
+  CMD: ML0;
+  RET:
+    STATUS: 3,6
+  DIM:
+    STATUS:
+      '000': 'OFF'
+      '001': 'ON'
+MONITOR_LEVEL_SET:
+  CMD: ML1{$VAL};
+  CONVERT:
+    VAL:
+      EXPS: x
+      FORM: R|3|0
+MONITOR_LEVEL_GET:
+  DEBUG: ML1100;
+  CMD: ML1;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x
+MOX_SET:
+  CMD: MX{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+MOX_GET:
+  DEBUG: MX1;
+  CMD: MX;
+  RET:
+    STATUS: 2,3
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+
+QUICK_SPLIT_SET:
+  CMD: QS;
+
+SCAN_SET:
+  CMD: SC{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'UP': '1'
+      'DOWN': '2'
+SCAN_GET:
+  DEBUG: SC2;
+  CMD: SC;
+  RET: 
+    STATUS: 2,3
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'UP'
+      '2': 'DOWN'
+IF_SHIFT_SET:
+  CMD: IS0{$DIRECT}{$FREQ};
+  CONVERT:
+    FREQ:
+      EXPS: x
+      FORM: R|4|0
+  DIM:
+    DIRECT:
+      '+': '+'
+      '-': '-'
+IF_SHIFT_GET:
+  DEBUG: IS0+1200;
+  CMD: IS0;
+  RET:
+    DIRECT: 3,4
+    FREQ: 4,8
+  CONVERT:
+    FREQ: x
+  DIM:
+    DIRECT:
+      '+': '+'
+      '-': '-'
+VOX_SET:
+  CMD: VX{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+VOX_GET:
+  DEBUG: VX1;
+  CMD: VX;
+  RET:
+    STATUS: 2,3
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+VOX_DELAY_TIME_SET:
+  CMD: VD{$VAL};
+  CONVERT:
+    VAL:
+      EXPS: x
+      FORM: R|4|0
+VOX_DELAY_TIME_GET:
+  DEBUG: VD3000;
+  CMD: VD;
+  RET:
+    VAL: 2,6
+  CONVERT:
+    VAL: x
+TXW_SET:
+  CMD: TS{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+TXW_GET:
+  DEBUG: TS1;
+  CMD: TS;
+  RET:
+    STATUS: 2,3
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+TX_SETTING_SET:
+  CMD: TX{$STATUS};
+  DIM:
+    STATUS:
+      'RTX_OFF_CTX_OFF': '0'
+      'RTX_OFF_CTX_ON': '1'
+      'RTX_ON_CTX_OFF': '2'
+TX_SETTING_GET:
+  DEBUG: TX2;
+  CMD: TX;
+  RET:
+    STATUS: 2,3
+  DIM:
+    STATUS:
+      '0': 'RTX_OFF_CTX_OFF'
+      '1': 'RTX_OFF_CTX_ON'
+      '2': 'RTX_ON_CTX_OFF'
+WIDTH_SET:
+WIDTH_GET:
+# -----------------------</ RX/TX >-----------------------
+
+
+# -----------------------< DSP >-----------------------
+APF_SET:
+  CMD: CO02{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0001'
+      'ON': '0001'
+APF_GET:
+  DEBUG: CO020001;
+  CMD: CO02;
+  RET:
+    STATUS: 4,8
+  DIM:
+    STATUS:
+      '0000': 'OFF'
+      '0001': 'ON'
+APF_FREQ_SET:
+  CMD: CO03{$FREQ};
+  CONVERT:
+    FREQ:
+      EXPS: x / 10 + 25
+      FORM: R|4|0
+APF_FREQ_GET:
+  DEBUG: CO030050;
+  CMD: CO03;
+  RET:
+    FREQ: 4,8
+  CONVERT:
+    FREQ: (x * 10) - 250
+CONTOUR_SET:
+  CMD: CO00{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0000'
+      'ON': '0001'
+CONTOUR_GET:
+  DEBUG: CO000001;
+  CMD: CO00;
+  RET:
+    STATUS: 4,8
+  DIM:
+    STATUS:
+      '0000': 'OFF'
+      '0001': 'ON'
+CONTOUR_FREQ_SET:
+  CMD: CO01{$FREQ};
+  CONVERT:
+    FREQ:
+      EXPS: x
+      FORM: R|4|0
+CONTOUR_FREQ_GET:
+  DEBUG: CO013200;
+  CMD: CO01;
+  RET:
+    FREQ: 4,8
+  CONVERT:
+    FREQ: x
+
+NB_SET:
+  CMD: NB0{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+NB_GET:
+  DEBUG: NB01;
+  CMD: NB0;
+  RET:
+    STATUS: 3,4
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+NB_LEVEL_SET:
+  CMD: NL0{$VAL};
+  CONVERT:
+    VAL:
+      EXPS: x
+      FORM: R|3|0
+NB_LEVEL_GET:
+  DEBUG: NL0010;
+  CMD: NL0;
+  RET:
+    VAL: 3,6
+  CONVERT:
+    VAL: x
+NR_SET:
+  CMD: NR0{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+NR_GET:
+  DEBUG: NR01;
+  CMD: NR0;
+  RET:
+    STATUS: 3,4
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+NR_LEVEL_SET:
+  CMD: RL0{$VAL};
+  CONVERT:
+    VAL:
+      EXPS: x
+      FORM: R|2|0
+NR_LEVEL_GET:
+  DEBUG: RL015;
+  CMD: RL0;
+  RET:
+    VAL: 3,5
+  CONVERT:
+    VAL: x
+NOTCH_AUTO_SET:
+  CMD: BC0{$STATUS};
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+NOTCH_AUTO_GET:
+  DEBUG: BC01;
+  CMD: BC0;
+  RET:
+    STATUS: 3,4
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+NOTCH_MANUAL_SET:
+  CMD: BP00{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '000'
+      'ON': '001'
+NOTCH_MANUAL_GET:
+  DEBUG: BP00001;
+  CMD: BP00;
+  RET:
+    STATUS: 4,7
+  DIM:
+    STATUS:
+      '000': 'OFF'
+      '001': 'ON'
+NOTCH_MANUAL_FREQ_SET:
+  CMD: BP01{$FREQ};
+  CONVERT:
+    FREQ:
+      EXPS: x / 10
+      FORM: R|3|0
+NOTCH_MANUAL_FREQ_GET:
+  DEBUG: BP01320;
+  CMD: BP01;
+  RET:
+    STATUS: 4,7
+  CONVERT:
+    STATUS: x * 10
+
+SPEECH_PROCESSOR_SET:
+  CMD: PR0{$STATUS};
+  DIM:
+    STATUS:
+      'OFF': '0'
+      'ON': '1'
+SPEECH_PROCESSOR_GET:
+  DEBUG: PR01;
+  CMD: PR0;
+  RET:
+    STATUS: 3,4
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+SPEECH_PROCESSOR_SET:
+SPEECH_PROCESSOR_GET:
+PARAMETRIC_MICROPHONE_EQUALIZER_SET:
+  CMD: PR1{$STATUS};
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+PARAMETRIC_MICROPHONE_EQUALIZER_GET:
+  DEBUG: PR11;
+  CMD: PR1;
+  RET:
+    STATUS: 3,4
+  DIM:
+    STATUS:
+      '0': 'OFF'
+      '1': 'ON'
+# -----------------------</ DSP >-----------------------
+
+
+# -----------------------< PLAYBACK >-----------------------
+# # KY;
+# CW_MEMORY_PLAYBACK_GET:
+# CW_MESSAGE_PLAYBACK_GET:
+
+# # LM;
+# DVS_LOAD_SET:
+
+# # PB;
+# PLAYBACK_SET:
+# -----------------------</ PLAYBACK >-----------------------
+
+
+# -----------------------< WIP >-----------------------
+
+
+
+# SPLIT_SET:
+#   CMD: ST{$STATUS};
+#   DIM:
+#     STATUS:
+#       'OFF': '0'
+#       'ON': '1'
+#       '5kHz': '2'
+
+# SPLIT_GET:
+#   DEBUG: ST2;
+#   CMD: ST;
+#   RET:
+#     STATUS: 2,3
+#   DIM:
+#     STATUS:
+#       '0': 'OFF'
+#       '1': 'ON'
+#       '2': '+5kHz'
+# -----------------------</ WIP >-----------------------
+
+
