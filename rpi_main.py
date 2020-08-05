@@ -91,15 +91,41 @@ class Rigctl(QWidget):
         self.ui.btn_vfo_set_b.clicked.connect(lambda: self.vfo_set_freq('B'))
 
         # TAB - 接收 (tab_rx) -------------------------------
-        # self.ui.btn_ipo_on.clicked.connect(self.ipo_on)
-        # self.ui.btn_ipo_off.clicked.conenct(self.ipo_off)
-        # self.ui.btn_att_on.clicked.connect(self.att_on)
-        # self.ui.btn_att_off.clicked.connect(self.att_off)
-        # self.ui.btn_nar_on.clicked.connect(self.nar_on)
-        # self.ui.btn_nar_off.clicked.connect(self.nar_off)
-        # self.ui.btn_shift_on.clicked.connect(self.shift_on)
-        # self.ui.btn_shift_off.clicked.connect(self.shift_on)
-        # self.ui.btn_agc_off.click.connect(self.agc)
+        self.ui.btn_ipo_on.clicked.connect(lambda: self.ipo('IPO'))
+        self.ui.btn_ipo_off.clicked.connect(lambda: self.ipo('AMP'))
+        self.ui.btn_att_on.clicked.connect(lambda: self.att('ON'))
+        self.ui.btn_att_off.clicked.connect(lambda: self.att('OFF'))
+        self.ui.btn_nar_on.clicked.connect(lambda: self.nar('ON'))
+        self.ui.btn_nar_off.clicked.connect(lambda: self.nar('OFF'))
+        self.ui.btn_shift_on.clicked.connect(lambda: self.shift('ON'))
+        self.ui.btn_shift_off.clicked.connect(lambda: self.shift('OFF'))
+        self.ui.btn_agc_off.clicked.connect(lambda: self.agc('OFF'))
+        self.ui.btn_agc_auto.clicked.connect(lambda: self.agc('AUTO'))
+        self.ui.btn_agc_slow.clicked.connect(lambda: self.agc('SLOW'))
+        self.ui.btn_agc_mid.clicked.connect(lambda: self.agc('MID'))
+        self.ui.btn_agc_fast.clicked.connect(lambda: self.agc('FAST'))
+        self.ui.btn_scan_stop.clicked.connect(lambda: self.scan('OFF'))
+        self.ui.btn_scan_up.clicked.connect(lambda: self.scan('UP'))
+        self.ui.btn_scan_down.clicked.connect(lambda: self.scan('DOWN'))
+
+        # TAB - 发射 (tab_tx) -------------------------------
+        self.ui.btn_vox_on.clicked.connect(lambda: self.vox('ON'))
+        self.ui.btn_vox_off.clicked.connect(lambda: self.vox('OFF'))
+        self.ui.btn_moni_on.clicked.connect(lambda: self.moni('ON'))
+        self.ui.btn_moni_off.clicked.connect(lambda: self.moni('OFF'))
+        self.ui.btn_atu_off.clicked.connect(lambda: self.atu('OFF'))
+        self.ui.btn_atu_on.clicked.connect(lambda: self.atu('ON'))
+        self.ui.btn_atu_tune.clicked.connect(lambda: self.atu('TUNING'))
+
+        # TAB - 降噪 (tab_dsp) ------------------------------
+        self.ui.btn_nb_on.clicked.connect(lambda: self.nb('ON'))
+        self.ui.btn_nb_off.clicked.connect(lambda: self.nb('OFF'))
+        self.ui.btn_nr_on.clicked.connect(lambda: self.nr('ON'))
+        self.ui.btn_nr_off.clicked.connect(lambda: self.nr('OFF'))
+        self.ui.btn_contour_on.clicked.connect(lambda: self.contour('ON'))
+        self.ui.btn_contour_off.clicked.connect(lambda: self.contour('OFF'))
+        self.ui.btn_notch_on.clicked.connect(lambda: self.notch('ON'))
+        self.ui.btn_notch_off.clicked.connect(lambda: self.notch('OFF'))
 
         # TAB - 系统设置 (tab_sys) ----------------------------
         self.ui.btn_serial_refresh.clicked.connect(self.serial_port_refresh)
@@ -132,18 +158,36 @@ class Rigctl(QWidget):
 
     def ui_rig_conf(self):
         """根据设备功能特性, 设置控件可用性"""
-        # 设置各功能上下限
+        self.ui.dial_rf.setMinimum(0)
+        self.ui.dial_rf.setMaximum(100)
+        self.ui.dial_rf.valueChanged.connect(self.rf_gain)
+
+        self.ui.dial_af.setMinimum(0)
+        self.ui.dial_af.setMaximum(100)
+        self.ui.dial_af.valueChanged.connect(self.af_gain)
+
+        self.ui.dial_sql.setMinimum(0)
+        self.ui.dial_sql.setMaximum(100)
+        self.ui.dial_sql.valueChanged.connect(self.sql)
+
+        # TODO
+        self.ui.dial_width.setMinimum(0)
+        self.ui.dial_width.setMaximum(100)
+        self.ui.dial_width.setSingleStep(1)
+        self.ui.dial_width.valueChanged.connect(self.width)
+
+        # -------------------------------------------------
         self.ui.dial_power.setMinimum(5)
         self.ui.dial_power.setMaximum(100)
-        self.ui.dial_power.valueChanged.connect(self.change_pow)
+        self.ui.dial_power.valueChanged.connect(self.rf_power)
 
         self.ui.dial_vox.setMinimum(0)
         self.ui.dial_vox.setMaximum(100)
-        self.ui.dial_vox.valueChanged.connect(self.change_vox_gain)
+        self.ui.dial_vox.valueChanged.connect(self.vox_gain)
 
         self.ui.dial_mic.setMinimum(0)
         self.ui.dial_mic.setMaximum(100)
-        self.ui.dial_mic.valueChanged.connect(self.change_mic_gain)
+        self.ui.dial_mic.valueChanged.connect(self.mic_gain)
 
     # ----------------------- 基本功能 ------------------------
     def mode(self, mode):
@@ -188,26 +232,100 @@ class Rigctl(QWidget):
 
     def vfo_set_freq(self, vfo):
         self.rig.vfo_freq(vfo, self.ui.text_vfo.text())
+        self.ui.text_vfo.clear()
 
-    def change_pow(self):
-        rf_power = self.ui.dial_power.value()
-        self.ui.spin_power.setValue(rf_power)
-        self.rig.rf_power(rf_power)
+    # ------------------------ 接收 -------------------------
+    def agc(self, agc_mode):
+        self.rig.agc(agc_mode)
 
-    def change_vox_gain(self):
-        vox_gain = self.ui.dial_vox.value()
-        self.ui.spin_vox.setValue(vox_gain)
+    def ipo(self, status):
+        self.rig.ipo(status)
 
-    def change_mic_gain(self):
-        mic_gain = self.ui.dial_mic.value()
-        self.ui.spin_mic.setValue(mic_gain)
+    def att(self, status):
+        self.rig.att(status)
 
+    def nar(self, status):
+        self.rig.narrow(status)
+
+    def shift(self, status):
+        pass
+
+    def scan(self, status):
+        self.rig.scan(status)
+
+    def rf_gain(self):
+        val = self.ui.dial_rf.value()
+        self.rig.rf_gain(val)
+
+    def af_gain(self):
+        val = self.ui.dial_af.value()
+        self.rig.af_gain(val)
+
+    def sql(self):
+        val = self.ui.dial_sql.value()
+        self.rig.sql(val)
+
+    def width(self):
+        pass
+
+    # ------------------------ 发射 -------------------------
+    def rf_power(self):
+        val = self.ui.dial_power.value()
+        self.ui.spin_power.setValue(val)
+        self.rig.rf_power(val)
+
+    def vox_gain(self):
+        val = self.ui.dial_vox.value()
+        self.ui.spin_vox.setValue(val)
+        self.rig.vox_gain(val)
+
+    def mic_gain(self):
+        val = self.ui.dial_mic.value()
+        self.ui.spin_mic.setValue(val)
+        self.rig.mic_gain(val)
+
+    def vox(self, status):
+        self.rig.vox(status)
+
+    def moni(self, status):
+        self.rig.monitor(status)
+
+    def atu(self, status):
+        self.rig.atu(status)
+
+    # ------------------------ 降噪 -------------------------
+    def nb(self, status):
+        pass
+
+    def nb_level(self, level):
+        pass
+
+    def nr(self, status):
+        pass
+
+    def nr_level(self, level):
+        pass
+
+    def contour(self, status):
+        pass
+
+    def contour_level(self, level):
+        pass
+
+    def notch(self, status):
+        pass
+
+    def notch_level(self, level):
+        pass
+
+    # ----------------------- 系统功能 ------------------------
     def rig_power_on(self):
         self.rig.power_on()
 
     def rig_power_off(self):
         self.rig.power_off()
 
+    # ----------------------- 系统功能 ------------------------
     def serial_port_connect(self):
         """打开串口, 创建设备实例
         1. 判断设备型号, 设置
