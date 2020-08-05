@@ -1,0 +1,36 @@
+IMPORT:
+  - yaesu.yaesu-cat3
+
+MODE:
+  MODE_LSB: True
+  MODE_USB: True
+  MODE_AM: True
+  MODE_FM: True
+  MODE_CW_L: True
+  MODE_CW_U: True
+  MODE_RTTY_L: True
+  MODE_RTTY_U: True
+  MODE_DATA_L: True
+  MODE_DATA_U: True
+  MODE_DATA_FM: True
+  MODE_C4FM: False
+BAND:
+  BAND_1_8: 
+
+RF_POWER:
+  SSB:
+    MIN:
+    MAX:
+    STEP:
+  AM:
+    MIN:
+    MAX:
+    STEP:
+  50M:
+    MIN:
+    MAX:
+    STEP:
+
+NB:
+NR:
+

@@ -493,6 +493,7 @@ class YaesuCAT3(object):
 
     def mode(self, mode=None):
         """模式切换"""
+        # TODO: 验证不支持的模式切换, 无响应
         return self.func_set('MODE_SET', MODE=mode) \
             if mode else self.func_get('MODE_GET')
 
