@@ -101,7 +101,7 @@
       </font>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tab_basic">
       <property name="enabled">
@@ -2671,6 +2671,9 @@
              <widget class="QSpinBox" name="spin_delay">
               <property name="suffix">
                <string> ms</string>
+              </property>
+              <property name="singleStep">
+               <number>1</number>
               </property>
              </widget>
             </item>

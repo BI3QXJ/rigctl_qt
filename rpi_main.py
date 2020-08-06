@@ -191,6 +191,19 @@ class Rigctl(QWidget):
         self.ui.dial_mic.setMaximum(100)
         self.ui.dial_mic.valueChanged.connect(self.mic_gain)
 
+        # -------------------------------------------------
+        self.ui.spin_delay.setMinimum(0)
+        self.ui.spin_delay.setMaximum(100)
+        self.ui.spin_delay.setSingleStep(2)
+
+        self.ui.spin_speed.setMinimum(0)
+        self.ui.spin_speed.setMaximum(100)
+        self.ui.spin_speed.setSingleStep(2)
+
+        self.ui.spin_pitch.setMinimum(0)
+        self.ui.spin_pitch.setMaximum(100)
+        self.ui.spin_pitch.setSingleStep(2)
+
     # ----------------------- 基本功能 ------------------------
     def mode(self, mode):
         self.rig.mode(mode)
@@ -297,27 +310,47 @@ class Rigctl(QWidget):
 
     # ------------------------ 降噪 -------------------------
     def nb(self, status):
-        pass
+        self.rig.nb(status)
 
     def nb_level(self, level):
-        pass
+        val = self.ui.dial_nb.value()
+        self.ui.spin_nb.setValue(val)
+        self.rig.nb_level(val)
 
     def nr(self, status):
-        pass
+        self.rig.nr(status)
 
     def nr_level(self, level):
-        pass
+        val = self.ui.dial_nr.value()
+        self.ui.spin_nr.setValue(val)
+        self.rig.nr_level(val)
 
     def contour(self, status):
-        pass
+        self.rig.contour(status)
 
-    def contour_level(self, level):
+    def contour_freq(self, level):
         pass
 
     def notch(self, status):
+        self.rig.notch_manual(status)
+
+    def notch_freq(self, level):
         pass
 
-    def notch_level(self, level):
+    # ------------------------ CW -------------------------
+    def bk_in(self, status):
+        self.rig.bk_in(status)
+
+    def keyer(self, status):
+        self.rig.cw_keyer(status)
+
+    def cw_delay(self):
+        pass
+
+    def cw_pitch(self):
+        pass
+
+    def cw_speed(self):
         pass
 
     # ----------------------- 系统功能 ------------------------
